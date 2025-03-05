@@ -2,10 +2,8 @@ version: "3.9"
 services:
   hummingbot:
     container_name: hummingbot
-    image: hummingbot/hummingbot:latest
-#    build: Uncomment this and comment image if you want to build it locally
-#      context: .
-#      dockerfile: Dockerfile
+    build: .
+    restart: unless-stopped
     volumes:
       - ./conf:/home/hummingbot/conf
       - ./conf/connectors:/home/hummingbot/conf/connectors
@@ -25,21 +23,40 @@ services:
     tty: true
     stdin_open: true
     network_mode: host
-    #  environment:
-    #    - CONFIG_PASSWORD=a
-    #    - CONFIG_FILE_NAME=simple_pmm_example.py
-    #    - SCRIPT_CONFIG=conf_simple_pmm_example.yaml
+    environment:
+      - CONFIG_PASSWORD=${CONFIG_PASSWORD:-default}
+    healthcheck:
+      test: ["CMD", "pgrep", "-f", "hummingbot"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
 
-  # gateway:
-  #  container_name: gateway
-  #  image: hummingbot/gateway:latest
-  #  ports:
-  #    - "15888:15888"
-  #    - "8080:8080"
-  #  volumes:
-  #    - "./gateway_files/conf:/home/gateway/conf"
-  #    - "./gateway_files/logs:/home/gateway/logs"
-  #    - "./gateway_files/db:/home/gateway/db"
-  #    - "./certs:/home/gateway/certs"
-  #  environment:
-  #    - GATEWAY_PASSPHRASE=a
+  gateway:
+    container_name: gateway
+    image: hummingbot/gateway:1.3.0
+    restart: unless-stopped
+    ports:
+      - "15888:15888"
+      - "8080:8080"
+    volumes:
+      - "./gateway_files/conf:/home/gateway/conf"
+      - "./gateway_files/logs:/home/gateway/logs"
+      - "./gateway_files/db:/home/gateway/db"
+      - "./certs:/home/gateway/certs"
+    environment:
+      - GATEWAY_PASSPHRASE=${GATEWAY_PASSPHRASE:-default}
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 1G

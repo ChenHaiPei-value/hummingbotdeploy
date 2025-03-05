@@ -1,14 +1,40 @@
+version: "3.9"
 services:
   dashboard:
     container_name: dashboard
-    image: hummingbot/dashboard:latest
+    build: .
+    restart: unless-stopped
     ports:
       - "8501:8501"
     environment:
-        - AUTH_SYSTEM_ENABLED=False
-        - BACKEND_API_HOST=backend-api
-        - BACKEND_API_PORT=8000
-        - BACKEND_API_USERNAME=admin
-        - BACKEND_API_PASSWORD=admin
+      - AUTH_SYSTEM_ENABLED=False
+      - BACKEND_API_HOST=backend-api
+      - BACKEND_API_PORT=8000
+      - BACKEND_API_USERNAME=admin
+      - BACKEND_API_PASSWORD=admin
     volumes:
-      - .:/home/dashboard
+      - ./credentials.yml:/home/dashboard/credentials.yml
+      - ./pages:/home/dashboard/frontend/pages
+      - ./backend:/home/dashboard/backend
+      - ./frontend:/home/dashboard/frontend
+    networks:
+      - emqx-bridge
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+
+networks:
+  emqx-bridge:
+    driver: bridge

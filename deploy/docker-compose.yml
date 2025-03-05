@@ -1,9 +1,9 @@
+version: "3.9"
 services:
   dashboard:
     container_name: dashboard
-    build:
-      context: ../dashboard-main
-      dockerfile: Dockerfile
+    build: ../dashboard
+    restart: unless-stopped
     ports:
       - "8501:8501"
     environment:
@@ -15,10 +15,25 @@ services:
     volumes:
       - ./credentials.yml:/home/dashboard/credentials.yml
       - ./pages:/home/dashboard/frontend/pages
-      - ../dashboard-main/backend:/home/dashboard/backend
-      - ../dashboard-main/frontend:/home/dashboard/frontend
+      - ../dashboard/backend:/home/dashboard/backend
+      - ../dashboard/frontend:/home/dashboard/frontend
     networks:
         - emqx-bridge
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
   backend-api:
     container_name: backend-api
     build:
