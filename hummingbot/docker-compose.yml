@@ -5,16 +5,16 @@ services:
     build: .
     restart: unless-stopped
     volumes:
-      - ./conf:/home/hummingbot/conf
-      - ./conf/connectors:/home/hummingbot/conf/connectors
-      - ./conf/strategies:/home/hummingbot/conf/strategies
-      - ./conf/controllers:/home/hummingbot/conf/controllers
-      - ./conf/scripts:/home/hummingbot/conf/scripts
-      - ./logs:/home/hummingbot/logs
-      - ./data:/home/hummingbot/data
-      - ./certs:/home/hummingbot/certs
-      - ./scripts:/home/hummingbot/scripts
-      - ./controllers:/home/hummingbot/controllers
+      - ./conf:/app/conf
+      - ./conf/connectors:/app/conf/connectors
+      - ./conf/strategies:/app/conf/strategies
+      - ./conf/controllers:/app/conf/controllers
+      - ./conf/scripts:/app/conf/scripts
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./certs:/app/certs
+      - ./scripts:/app/scripts
+      - ./controllers:/app/controllers
     logging:
       driver: "json-file"
       options:
@@ -44,10 +44,10 @@ services:
       - "15888:15888"
       - "8080:8080"
     volumes:
-      - "./gateway_files/conf:/home/gateway/conf"
-      - "./gateway_files/logs:/home/gateway/logs"
-      - "./gateway_files/db:/home/gateway/db"
-      - "./certs:/home/gateway/certs"
+      - "./gateway_files/conf:/app/gateway/conf"
+      - "./gateway_files/logs:/app/gateway/logs"
+      - "./gateway_files/db:/app/gateway/db"
+      - "./certs:/app/gateway/certs"
     environment:
       - GATEWAY_PASSPHRASE=${GATEWAY_PASSPHRASE:-default}
     healthcheck:

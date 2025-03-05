@@ -13,10 +13,10 @@ services:
       - BACKEND_API_USERNAME=admin
       - BACKEND_API_PASSWORD=admin
     volumes:
-      - ./credentials.yml:/home/dashboard/credentials.yml
-      - ./pages:/home/dashboard/frontend/pages
-      - ./backend:/home/dashboard/backend
-      - ./frontend:/home/dashboard/frontend
+      - ./credentials.yml:/app/credentials.yml
+      - ./pages:/app/frontend/pages
+      - ./backend:/app/backend
+      - ./frontend:/app/frontend
     networks:
       - emqx-bridge
     healthcheck:
