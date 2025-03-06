@@ -1,6 +1,20 @@
-version: "3.9"
-
 services:
+  dashboard:
+    container_name: dashboard
+    image: hummingbot/dashboard:latest
+    ports:
+      - "8501:8501"
+    environment:
+        - AUTH_SYSTEM_ENABLED=False
+        - BACKEND_API_HOST=backend-api
+        - BACKEND_API_PORT=8000
+        - BACKEND_API_USERNAME=admin
+        - BACKEND_API_PASSWORD=admin
+    volumes:
+      - ./credentials.yml:/home/dashboard/credentials.yml
+      - ./pages:/home/dashboard/frontend/pages
+    networks:
+        - emqx-bridge
   backend-api:
     container_name: backend-api
     image: hummingbot/backend-api:latest
@@ -9,6 +23,9 @@ services:
     volumes:
       - ./bots:/backend-api/bots
       - /var/run/docker.sock:/var/run/docker.sock
+      - ./bots/connectors/derivative:/backend-api/derivative_connectors
+    env_file:
+      - .env
     environment:
       - BROKER_HOST=emqx
       - BROKER_PORT=1883
